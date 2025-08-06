@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Carelog {
+  carelogId               String    @id
+  parentId                String?
+
+  startDatetime           DateTime?
+  endDatetime             DateTime?
+  clockInActualDatetime   DateTime?
+  clockOutActualDatetime  DateTime?
+  overtimeMinutes         Int? 
+  
+  clockInMethod           Int?
+  clockOutMethod          Int?
+  status                  Int
+  split                   Boolean
+
+  documentation           String?   
+  generalCommentCharCount Int
+
+  caregiverId             String
+  caregiver               Caregiver @relation(fields: [caregiverId], references: [caregiverId])
+  @@map("carelogs")
+}
+
+
+model Caregiver {
+  caregiverId     String  @id
+  profileId       String
+  externalId      String?
+  agencyId        String
+  agency          Agency @relation(fields: [agencyId], references: [agencyId])
+
+  firstName       String
+  lastName        String
+  gender          String?
+  email           String?  
+  phoneNumber     String?
+
+  applicant       Boolean
+  birthdayDate    DateTime?
+  onboardingDate  DateTime?
+  locationId      Int
+  location        Location @relation(fields: [locationId], references: [locationId])
+
+  applicantStatus String
+  status          Boolean
+
+  carelogs        Carelog[]
+  @@map("caregivers")
+}
+
+
+model Agency {
+  agencyId        String  @id 
+  franchisorId    String  
+  subdomain       String
+
+  caregivers      Caregiver[]
+  @@map("agencies")
+}
+
+
+model Location{
+  locationId      Int     @id
+  locationName    String
+
+  caregivers      Caregiver[]
+  @@map("locations")
+}
+
+
+
+
